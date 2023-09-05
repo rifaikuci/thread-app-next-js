@@ -21,7 +21,8 @@ async function page() {
 
 
     const result = await fetchUsers({
-        userId: user.id, searchString : '',
+        userId: user.id,
+        searchString : '',
         pageNumber: 1,
         pageSize: 25
     })
