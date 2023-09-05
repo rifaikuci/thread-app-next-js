@@ -1,17 +1,9 @@
-import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs";
-
-import {fetchUser, fetchUserPosts, fetchUsers, getActivity} from "@/lib/actions/user.actions";
-import ProfileHeader from "@/components/shared/ProfileHeader";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {profileTabs} from "@/constants";
 import Image from "next/image";
-import ThreadsTab from "@/components/shared/ThreadsTab";
-import React from "react";
-import UserCard from "@/components/cards/UserCard";
 import Link from "next/link";
+import { currentUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
-export const revalidate = 0;
+import { fetchUser, getActivity } from "@/lib/actions/user.actions";
 
 async function Page() {
     const user = await currentUser();
@@ -20,39 +12,41 @@ async function Page() {
     const userInfo = await fetchUser(user.id);
     if (!userInfo?.onboarded) redirect("/onboarding");
 
-    const activity = await getActivity(userInfo._id)
+    const activity = await getActivity(userInfo._id);
 
     return (
-        <section>
-            <h1 className={"head-text mb-10"}>
-               Activity
-            </h1>
-            <section className={"mt-10 flex flex-col gap-5"}>
-                {activity &&  activity.length > 0 ? (
-                    <>
-                        {
-                            activity.map((activity) => (
-                                <Link key={activity._id} href={`/thread/${activity.parentId}`}>
-                                    <article className={"activity-card"}>
-                                        <Image src={activity.author.image} alt={"Profile Picture"} width={20} height={20}
-                                               className={"rounded-full object-cover"} />
-                                        <p className={"!text-small-regular text-light-1"}>
-                                            <span className={"mr-1 text-primary-500"}>
-                                                {activity.author.name}
-                                            </span>{" "}
-                                            replied to your thread
-                                        </p>
-                                    </article>
-                                </Link>
-                            ))
-                        }
+        <>
+            <h1 className='head-text'>Activity</h1>
 
+            <section className='mt-10 flex flex-col gap-5'>
+                {activity.length > 0 ? (
+                    <>
+                        {activity.map((activity) => (
+                            <Link key={activity._id} href={`/thread/${activity.parentId}`}>
+                                <article className='activity-card'>
+                                    <Image
+                                        src={activity.author.image}
+                                        alt='user_logo'
+                                        width={20}
+                                        height={20}
+                                        className='rounded-full object-cover'
+                                    />
+                                    <p className='!text-small-regular text-light-1'>
+                    <span className='mr-1 text-primary-500'>
+                      {activity.author.name}
+                    </span>{" "}
+                                        replied to your thread
+                                    </p>
+                                </article>
+                            </Link>
+                        ))}
                     </>
-                ) : <p className={"!text-base-regular text-light-3"}>No Activity yet</p>
-                }
+                ) : (
+                    <p className='!text-base-regular text-light-3'>No activity yet</p>
+                )}
             </section>
-        </section>
-    )
+        </>
+    );
 }
 
 export default Page;

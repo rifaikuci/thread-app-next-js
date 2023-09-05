@@ -1,44 +1,49 @@
+import React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
-import {fetchPosts} from "@/lib/actions/thread.actions";
-import {currentUser} from "@clerk/nextjs";
-import ThreadCard from "@/components/cards/ThreadCard";
+import "../globals.css";
+import LeftSidebar from "@/components/shared/LeftSidebar";
+import Bottombar from "@/components/shared/Bottombar";
+import RightSidebar from "@/components/shared/RightSidebar";
+import Topbar from "@/components/shared/Topbar";
 
+const inter = Inter({ subsets: ["latin"] });
 
-export default async function Home() {
+export const metadata: Metadata = {
+    title: "Threads",
+    description: "A Next.js 13 Meta Threads application",
+};
 
-    const result = await fetchPosts(1,30);
-
-    const user = await currentUser();
-
-
+export default function RootLayout({
+                                       children,
+                                   }: {
+    children: React.ReactNode;
+}) {
     return (
-        <>
-            <h1 className={"head-text text-left"}>Home</h1>
-            <section className={"mt-9 flex flex-col gap-10"}>
-                {
-                    result.posts.length === 0 ? (
-                        <p className={"no-result"} >No Threads found</p>
-                    )  :  (
-                        <>
-                            {result.posts.map((post) => (
-                                <ThreadCard
-                                    key = {post._id}
-                                    id={post._id}
-                                    currentUserId={user?.id || ""}
-                                    parentId={post.parentId}
-                                    content={post.text}
-                                    author={post.author}
-                                    community={post.community}
-                                    createdAt={post.createdAt}
-                                    comments={post.children}
-                                />
+        <ClerkProvider
+            appearance={{
+                baseTheme: dark,
+            }}
+        >
+            <html lang='en'>
+            <body className={inter.className}>
+            <Topbar />
 
-                            ))}
-                        </>
-                    )
-                }
+            <main className='flex flex-row'>
+                <LeftSidebar />
+                <section className='main-container'>
+                    <div className='w-full max-w-4xl'>{children}</div>
+                </section>
+                {/* @ts-ignore */}
+                <RightSidebar />
+            </main>
 
-            </section>
-        </>
-    )
+            <Bottombar />
+            </body>
+            </html>
+        </ClerkProvider>
+    );
 }
